@@ -73,30 +73,16 @@ function Validate(validatableInput: Validatable) {
   if (validatableInput.required) {
     isValid = isValid && validatableInput.value.toString().trim().length !== 0;
   }
-  if (
-    validatableInput.minLength != null &&
-    typeof validatableInput.value === "string"
-  ) {
-    isValid =
-      isValid && validatableInput.value.length >= validatableInput.minLength;
+  if (validatableInput.minLength != null && typeof validatableInput.value === "string") {
+    isValid = isValid && validatableInput.value.length >= validatableInput.minLength;
   }
-  if (
-    validatableInput.maxLength != null &&
-    typeof validatableInput.value === "string"
-  ) {
-    isValid =
-      isValid && validatableInput.value.length <= validatableInput.maxLength;
+  if (validatableInput.maxLength != null && typeof validatableInput.value === "string") {
+    isValid = isValid && validatableInput.value.length <= validatableInput.maxLength;
   }
-  if (
-    validatableInput.min != null &&
-    typeof validatableInput.value === "number"
-  ) {
+  if (validatableInput.min != null && typeof validatableInput.value === "number") {
     isValid = isValid && validatableInput.value >= validatableInput.min;
   }
-  if (
-    validatableInput.max != null &&
-    typeof validatableInput.value === "number"
-  ) {
+  if (validatableInput.max != null && typeof validatableInput.value === "number") {
     isValid = isValid && validatableInput.value <= validatableInput.max;
   }
   return isValid;
@@ -127,15 +113,10 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
     insertAtStart: boolean,
     elementId?: string
   ) {
-    this.templateElement = document.getElementById(
-      templateId
-    )! as HTMLTemplateElement;
+    this.templateElement = document.getElementById(templateId)! as HTMLTemplateElement;
     this.hostElement = document.getElementById(hostElementId)! as T;
 
-    const importedNode = document.importNode(
-      this.templateElement.content,
-      true
-    );
+    const importedNode = document.importNode(this.templateElement.content, true);
     this.element = importedNode.firstElementChild as U;
     if (elementId) {
       this.element.id = elementId;
@@ -153,6 +134,27 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 
   abstract configure(): void;
   abstract renderContent(): void;
+}
+
+// Project Item Class
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private project: Project;
+
+  constructor(hostId: string, project: Project) {
+    super("single-project", hostId, false, project.id);
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  configure() {}
+
+  renderContent() {
+    this.element.querySelector("h2")!.textContent = this.project.title;
+    this.element.querySelector("h3")!.textContent = this.project.people.toString();
+    this.element.querySelector("p")!.textContent = this.project.description;
+  }
 }
 
 // Project List Class
@@ -183,19 +185,14 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   renderContent() {
     const listId = `${this.type}-projects-list`;
     this.element.querySelector("ul")!.id = listId;
-    this.element.querySelector("h2")!.textContent =
-      this.type.toUpperCase() + " PROJECTS";
+    this.element.querySelector("h2")!.textContent = this.type.toUpperCase() + " PROJECTS";
   }
 
   private renderProjects() {
-    const listEl = document.getElementById(
-      `${this.type}-projects-list`
-    )! as HTMLUListElement;
+    const listEl = document.getElementById(`${this.type}-projects-list`)! as HTMLUListElement;
     listEl.innerHTML = "";
     for (const prjItem of this.assignedProjects) {
-      const listItem = document.createElement("li");
-      listItem.textContent = prjItem.title;
-      listEl.appendChild(listItem);
+      new ProjectItem(this.element.querySelector("ul")!.id, prjItem);
     }
   }
 }
@@ -209,17 +206,12 @@ class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   constructor() {
     super("project-input", "app", true, "user-input");
 
-    this.titleInputElement = this.element.querySelector(
-      "#title"
-    ) as HTMLInputElement;
-    this.descriptionInputElement = this.element.querySelector(
-      "#description"
-    ) as HTMLInputElement;
-    this.peopleInputElement = this.element.querySelector(
-      "#people"
-    ) as HTMLInputElement;
+    this.titleInputElement = this.element.querySelector("#title") as HTMLInputElement;
+    this.descriptionInputElement = this.element.querySelector("#description") as HTMLInputElement;
+    this.peopleInputElement = this.element.querySelector("#people") as HTMLInputElement;
 
     this.configure();
+    this.renderContent();
   }
 
   configure() {
